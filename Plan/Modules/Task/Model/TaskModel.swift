@@ -9,18 +9,31 @@ import SwiftUI
 
 struct Task: Codable, Identifiable, Hashable {
     var id = UUID()
+    
+    // General
+    var type: TaskType = .task
+    
     var title: String = ""
     var description: String = ""
+    
+    var color: String?
+    var image: String?
     var priority: Priority = .none
+    
     var tags: [String] = []
     var completed: Bool = false
     var assignees: [String] = []
     var subtasks: [Subtask] = []
+    
+    var completedOn: [Date] = []
+    // Repeat
     var startDate: Date = Date()
     var endDate: Date? = nil
     var startTime: Date? = nil
     var endTime: Date? = nil
     var repetition: Repetition?
+    
+    // Metadata
     var createdOn: Date = Date()
     var createdBy: String?
     
@@ -29,19 +42,45 @@ struct Task: Codable, Identifiable, Hashable {
         var periodAmount: Int
         var period: Period
         
-        enum Period: Codable, Hashable {
+        enum Period: Codable, Hashable, CaseIterable, HasDisplayString {
             case hour
             case day
             case week
             case month
+            
+            var displayString: String {
+                switch self {
+                case .hour:
+                    return "Hour"
+                case .day:
+                    return "Day"
+                case .week:
+                    return "Week"
+                case .month:
+                    return "Month"
+                }
+            }
         }
     }
     
-    enum Priority: Int, Codable, CaseIterable, Hashable {
+    enum Priority: Int, Codable, CaseIterable, Hashable, HasDisplayString {
         case high = 3
         case medium = 2
         case low = 1
         case none = 0
+        
+        var displayString: String {
+            switch self {
+            case .high:
+                return "High"
+            case .medium:
+                return "Medium"
+            case .low:
+                return "Low"
+            case .none:
+                return "None"
+            }
+        }
         
         var color: Color {
             switch self {
@@ -53,6 +92,20 @@ struct Task: Codable, Identifiable, Hashable {
                 return .blue
             case .none:
                 return .gray
+            }
+        }
+    }
+    
+    enum TaskType: Int, Codable, CaseIterable, Hashable, HasDisplayString {
+        case task = 0
+        case habit = 1
+        
+        var displayString: String {
+            switch self {
+            case .task:
+                return "Task"
+            case .habit:
+                return "Habit"
             }
         }
     }
@@ -143,6 +196,7 @@ extension Task {
             return Task(
                 title: titles.randomElement() ?? "",
                 description: descriptions.randomElement() ?? "",
+                image: iOS15InvalidSymbols.randomElement() ?? "",
                 priority: Bool.random() ? Task.Priority.allCases.randomElement() ?? .none: .none,
                 tags: (0..<Int.random(in: 0...3)).map({ _ in allTags.randomElement()?.0 ?? "" }),
                 completed: Bool.random(),

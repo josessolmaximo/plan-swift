@@ -20,6 +20,13 @@
 		D4A9F86A2AF8E223004B2036 /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = D4A9F8692AF8E223004B2036 /* DequeModule */; };
 		D4A9F86C2AF8E223004B2036 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = D4A9F86B2AF8E223004B2036 /* OrderedCollections */; };
 		D4A9F86F2AF902D0004B2036 /* TaskViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4A9F86E2AF902D0004B2036 /* TaskViewModel.swift */; };
+		D4BF64532B669F9D0068FF02 /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BF64522B669F9D0068FF02 /* Symbol.swift */; };
+		D4BF64572B66AF630068FF02 /* TaskSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BF64562B66AF630068FF02 /* TaskSheetView.swift */; };
+		D4BF64592B66B1AC0068FF02 /* HasDisplayString.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BF64582B66B1AC0068FF02 /* HasDisplayString.swift */; };
+		D4BF645B2B66B20B0068FF02 /* TaskSheetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BF645A2B66B20B0068FF02 /* TaskSheetViewModel.swift */; };
+		D4BF645D2B66B5D60068FF02 /* View.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BF645C2B66B5D60068FF02 /* View.swift */; };
+		D4BF645F2B66B86E0068FF02 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BF645E2B66B86E0068FF02 /* Color.swift */; };
+		D4BF64622B66B8EC0068FF02 /* ColorModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4BF64612B66B8EC0068FF02 /* ColorModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +41,13 @@
 		D43D18842AF54DB300DE48E8 /* TaskView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskView.swift; sourceTree = "<group>"; };
 		D4A9F8642AF8B8FC004B2036 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		D4A9F86E2AF902D0004B2036 /* TaskViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModel.swift; sourceTree = "<group>"; };
+		D4BF64522B669F9D0068FF02 /* Symbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
+		D4BF64562B66AF630068FF02 /* TaskSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSheetView.swift; sourceTree = "<group>"; };
+		D4BF64582B66B1AC0068FF02 /* HasDisplayString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HasDisplayString.swift; sourceTree = "<group>"; };
+		D4BF645A2B66B20B0068FF02 /* TaskSheetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSheetViewModel.swift; sourceTree = "<group>"; };
+		D4BF645C2B66B5D60068FF02 /* View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = View.swift; sourceTree = "<group>"; };
+		D4BF645E2B66B86E0068FF02 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		D4BF64612B66B8EC0068FF02 /* ColorModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,7 +103,7 @@
 				D43D18722AF53A9300DE48E8 /* ContentView.swift */,
 				D4A9F8622AF8B8F2004B2036 /* Common */,
 				D43D187E2AF547BB00DE48E8 /* Modules */,
-				D43D18742AF53A9400DE48E8 /* Assets.xcassets */,
+				D4BF64502B669F870068FF02 /* Resources */,
 				D43D18762AF53A9400DE48E8 /* Preview Content */,
 			);
 			path = Plan;
@@ -127,6 +141,7 @@
 			children = (
 				D43D18842AF54DB300DE48E8 /* TaskView.swift */,
 				D40B4F852B62ADBD006C0699 /* TaskRowView.swift */,
+				D4BF64562B66AF630068FF02 /* TaskSheetView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -139,9 +154,18 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		D49143C32B669F7100DA09E1 /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				D4BF64582B66B1AC0068FF02 /* HasDisplayString.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
 		D4A9F8622AF8B8F2004B2036 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				D49143C32B669F7100DA09E1 /* Protocols */,
 				D4A9F8632AF8B8F6004B2036 /* Extensions */,
 			);
 			path = Common;
@@ -151,6 +175,8 @@
 			isa = PBXGroup;
 			children = (
 				D4A9F8642AF8B8FC004B2036 /* Date.swift */,
+				D4BF645C2B66B5D60068FF02 /* View.swift */,
+				D4BF645E2B66B86E0068FF02 /* Color.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -159,8 +185,35 @@
 			isa = PBXGroup;
 			children = (
 				D4A9F86E2AF902D0004B2036 /* TaskViewModel.swift */,
+				D4BF645A2B66B20B0068FF02 /* TaskSheetViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		D4BF64502B669F870068FF02 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D4BF64602B66B8E60068FF02 /* Color */,
+				D4BF64512B669F920068FF02 /* Icons */,
+				D43D18742AF53A9400DE48E8 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		D4BF64512B669F920068FF02 /* Icons */ = {
+			isa = PBXGroup;
+			children = (
+				D4BF64522B669F9D0068FF02 /* Symbol.swift */,
+			);
+			path = Icons;
+			sourceTree = "<group>";
+		};
+		D4BF64602B66B8E60068FF02 /* Color */ = {
+			isa = PBXGroup;
+			children = (
+				D4BF64612B66B8EC0068FF02 /* ColorModel.swift */,
+			);
+			path = Color;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -241,14 +294,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D4BF645D2B66B5D60068FF02 /* View.swift in Sources */,
 				D43D18812AF547CC00DE48E8 /* TaskModel.swift in Sources */,
 				D4A9F86F2AF902D0004B2036 /* TaskViewModel.swift in Sources */,
 				D40B4F862B62ADBD006C0699 /* TaskRowView.swift in Sources */,
+				D4BF64592B66B1AC0068FF02 /* HasDisplayString.swift in Sources */,
 				D4A9F8652AF8B8FC004B2036 /* Date.swift in Sources */,
 				D43D18732AF53A9300DE48E8 /* ContentView.swift in Sources */,
+				D4BF64532B669F9D0068FF02 /* Symbol.swift in Sources */,
+				D4BF64622B66B8EC0068FF02 /* ColorModel.swift in Sources */,
 				D40B4F842B629B44006C0699 /* HabitView.swift in Sources */,
+				D4BF645F2B66B86E0068FF02 /* Color.swift in Sources */,
 				D43D18712AF53A9300DE48E8 /* PlanApp.swift in Sources */,
 				D43D18852AF54DB300DE48E8 /* TaskView.swift in Sources */,
+				D4BF64572B66AF630068FF02 /* TaskSheetView.swift in Sources */,
+				D4BF645B2B66B20B0068FF02 /* TaskSheetViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
