@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HabitView: View {
-    @State var habits: [Task] = Task.randomTasks(10)
+    @State var habits: [Task] = []
     
     @State var isFull: Double = 0
     
@@ -22,10 +22,10 @@ struct HabitView: View {
                         Button(action: {
                             
                         }, label: {
-                            Image(systemName: "plus")
+                            Image(systemName: "chart.bar")
                                 .resizable()
                                 .scaledToFit()
-                                .frame(width: 16, height: 16)
+                                .frame(width: 20, height: 20)
                         })
                         .foregroundColor(.black)
                     }
@@ -36,80 +36,22 @@ struct HabitView: View {
                     }
                 }
                 .padding(.horizontal, 16)
+                .padding(.top, 8)
                 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
                         ForEach(habits) { habit in
-                            VStack(spacing: 16) {
-                                HStack(spacing: 16) {
-                                    if let image = habit.image {
-                                        Image(systemName: image)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 20, height: 20)
-                                            .foregroundColor(habit.priority.color)
-                                    } else {
-                                        RoundedRectangle(cornerRadius: 4)
-                                            .foregroundColor(Color(uiColor: .systemGray5))
-                                            .frame(width: 20, height: 20)
-                                    }
-                                    
-                                    Text(habit.title)
-                                        .font(.system(size: 17, weight: .medium))
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                    
-                                    let isCompletedToday = habit.completedOn.contains(Date().startOfDay)
-                                    
-                                    Button {
-                                        if let index = habits.firstIndex(where: { $0.id == habit.id }) {
-                                            if isCompletedToday {
-                                                habits[index].completedOn.removeAll(where: { $0 == Date().startOfDay })
-                                            } else {
-                                                habits[index].completedOn.append(Date().startOfDay)
-                                            }
-                                        }
-                                    } label: {
-                                        Image(systemName: isCompletedToday ? "checkmark.square.fill" : "square")
-                                            .resizable()
-                                            .frame(width: 20, height: 20)
-                                            .foregroundColor(isCompletedToday ? .gray : habit.priority.color)
-                                    }
-                                }
+                            HabitRowView(habit: habit) { habit in
+                                let isCompletedToday = habit.completedOn?.contains(Date().startOfDay) ?? false
                                 
-                                var dates: [Date] {
-                                    var dates: [Date] = []
-                                    var startDate = Date().startOfYear.startOfDay
-                                    
-                                    while startDate < Date().endOfYear.startOfDay {
-                                        dates.append(startDate)
-                                        startDate = Calendar.current.date(byAdding: .day, value: 1, to: startDate)!
-                                    }
-                                    
-                                    return dates
-                                }
-                                
-                                let spacing: CGFloat = 2.5
-                                let gridSize: CGFloat = 12
-                                
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    LazyHGrid(rows: Array(repeating: .init(.fixed(gridSize), spacing: spacing), count: 7), spacing: spacing, content: {
-                                        
-                                        ForEach(dates, id: \.self) { date in
-                                            let isCompleted = habit.completedOn.contains(date)
-                                            
-                                            RoundedRectangle(cornerRadius: gridSize/4)
-                                                .foregroundColor(habit.priority.color.opacity(isCompleted ? 1 : 0.1))
-                                                .frame(width: gridSize, height: gridSize)
-                                        }
-                                    })
-                                }
+//                                if let index = habits.firstIndex(where: { $0.id == habit.id }) {
+//                                    if isCompletedToday {
+//                                        habits[index].completedOn.removeAll(where: { $0 == Date().startOfDay })
+//                                    } else {
+//                                        habits[index].completedOn.append(Date().startOfDay)
+//                                    }
+//                                }
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .contextMenu(ContextMenu(menuItems: {
-                                Text("Test")
-                            }))
-                            .cornerRadius(16)
                         }
                     }
                 }

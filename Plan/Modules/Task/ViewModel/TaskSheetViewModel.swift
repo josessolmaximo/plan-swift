@@ -8,5 +8,9 @@
 import Foundation
 
 class TaskSheetViewModel: ObservableObject {
-    @Published var task = Task()
+    @Published var task: Task
+    
+    init(task: Task) {
+        self.task = task
+    }
 }

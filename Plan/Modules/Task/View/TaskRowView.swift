@@ -9,7 +9,14 @@ import SwiftUI
 
 struct TaskRowView: View {
     let task: Task
+    let text: Binding<String>?
     let onCompleteTapped: () -> Void
+    
+    init(task: Task, text: Binding<String>? = nil, onCompleteTapped: @escaping () -> Void) {
+        self.task = task
+        self.text = text
+        self.onCompleteTapped = onCompleteTapped
+    }
     
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -20,16 +27,31 @@ struct TaskRowView: View {
                 .frame(width: 20)
             
             VStack(alignment: .leading, spacing: 4) {
-                Text(task.title)
-                    .strikethrough(task.completed, color: .gray)
-                    .foregroundStyle(task.completed ? .gray : .black)
-                    .font(.system(size: 17, weight: .medium))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                if let text = text {
+                    TextField("Title", text: text)
+                        .foregroundStyle(task.completed ? .gray : .black)
+                        .font(.system(size: 17, weight: .medium))
+                        .lineLimit(2)
+                } else {
+                    Text(task.title ?? "")
+                        .strikethrough(task.completed, color: .gray)
+                        .foregroundStyle(task.completed ? .gray : .black)
+                        .font(.system(size: 17, weight: .medium))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                if !(task.note ?? "").isEmpty {
+                    Text(task.note ?? "")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(nil)
+                }
                 
                 if task.startTime != nil ||
                     task.endTime != nil ||
-                    !task.tags.isEmpty ||
-                    !task.assignees.isEmpty {
+                    !(task.tags ?? []).isEmpty ||
+                    !(task.assignees ?? []).isEmpty {
                     
                     HStack {
                         HStack(spacing: 6) {
@@ -54,28 +76,28 @@ struct TaskRowView: View {
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(task.completed ? .gray : .black)
                         
-                        if task.startTime != nil && !task.tags.isEmpty {
+                        if task.startTime != nil && !(task.tags ?? []).isEmpty {
                             Rectangle()
                                 .frame(width: 1, height: 20)
                                 .foregroundColor(.gray)
                         }
                         
-                        ForEach(task.tags, id: \.self) { tag in
+                        ForEach(task.tags ?? [], id: \.self) { tag in
                             Image(systemName: allTags.first(where: { $0.0 == tag })?.1 ?? "")
                                 .resizable()
                                 .scaledToFit()
-                                .foregroundColor(task.priority.color)
+                                .foregroundColor(task.priorityEnum.color)
                                 .frame(width: 13, height: 13)
                         }
                         
-                        if !task.tags.isEmpty && !task.assignees.isEmpty {
+                        if !(task.tags ?? []).isEmpty && !(task.assignees ?? []).isEmpty {
                             Rectangle()
                                 .frame(width: 1, height: 20)
                                 .foregroundColor(.gray)
                         }
                         
                         HStack(spacing: -4) {
-                            ForEach(task.assignees, id: \.self) { assignee in
+                            ForEach(task.assignees ?? [], id: \.self) { assignee in
                                 Circle()
                                     .frame(width: 15, height: 15)
                                     .foregroundColor(.gray)
@@ -93,27 +115,27 @@ struct TaskRowView: View {
                     }
                 }
                 
-                if !task.subtasks.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        ForEach(task.subtasks) { subtask in
-                            HStack {
-                                Button {
-                                    
-                                } label: {
-                                    Image(systemName: subtask.completed ? "checkmark.square.fill" : "square")
-                                        .resizable()
-                                        .frame(width: 13, height: 13)
-                                        .foregroundColor(task.completed ? .gray : task.priority.color)
-                                }
-                                
-                                Text(subtask.title)
-                                    .font(.system(size: 14))
-                                    .foregroundColor(subtask.completed ? .gray : .black.opacity(0.8))
-                                    .strikethrough(subtask.completed, color: .gray)
-                            }
-                        }
-                    }
-                }
+//                if !task.subtasks.isEmpty {
+//                    VStack(alignment: .leading, spacing: 6) {
+//                        ForEach(task.subtasks) { subtask in
+//                            HStack {
+//                                Button {
+//                                    
+//                                } label: {
+//                                    Image(systemName: subtask.completed ? "checkmark.square.fill" : "square")
+//                                        .resizable()
+//                                        .frame(width: 13, height: 13)
+//                                        .foregroundColor(task.completed ? .gray : task.priority.color)
+//                                }
+//                                
+//                                Text(subtask.title)
+//                                    .font(.system(size: 14))
+//                                    .foregroundColor(subtask.completed ? .gray : .black.opacity(0.8))
+//                                    .strikethrough(subtask.completed, color: .gray)
+//                            }
+//                        }
+//                    }
+//                }
             }
             .lineLimit(1)
         }
@@ -122,7 +144,7 @@ struct TaskRowView: View {
             ZStack(alignment: .leading) {
                 HStack(alignment: .top, spacing: 12) {
                     Rectangle()
-                        .foregroundColor(task.priority.color)
+                        .foregroundColor(task.priorityEnum.color)
                         .frame(width: 2.5)
                         .frame(minHeight: 40)
                     
@@ -132,7 +154,7 @@ struct TaskRowView: View {
                         Image(systemName: task.completed ? "checkmark.square.fill" : "square")
                             .resizable()
                             .frame(width: 20, height: 20)
-                            .foregroundColor(task.completed ? .gray : task.priority.color)
+                            .foregroundColor(task.completed ? .gray : task.priorityEnum.color)
                     }
                     .padding(.vertical, 10)
                     
@@ -146,34 +168,34 @@ struct TaskRowView: View {
 
 #Preview {
     VStack(spacing: 16) {
-        TaskRowView(task: Task(title: "Take out the garbage"), onCompleteTapped: {
-            
-        })
-        .padding(.horizontal, 16)
-        
-        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
-            
-        })
-        .padding(.horizontal, 16)
-        
-        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
-            
-        })
-        .padding(.horizontal, 16)
-        
-        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
-            
-        })
-        .padding(.horizontal, 16)
-        
-        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
-            
-        })
-        .padding(.horizontal, 16)
-        
-        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
-            
-        })
-        .padding(.horizontal, 16)
+//        TaskRowView(task: Task(title: "Take out the garbage"), onCompleteTapped: {
+//            
+//        })
+//        .padding(.horizontal, 16)
+//        
+//        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
+//            
+//        })
+//        .padding(.horizontal, 16)
+//        
+//        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
+//            
+//        })
+//        .padding(.horizontal, 16)
+//        
+//        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
+//            
+//        })
+//        .padding(.horizontal, 16)
+//        
+//        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
+//            
+//        })
+//        .padding(.horizontal, 16)
+//        
+//        TaskRowView(task: Task.randomTasks(1).first!, onCompleteTapped: {
+//            
+//        })
+//        .padding(.horizontal, 16)
     }
 }

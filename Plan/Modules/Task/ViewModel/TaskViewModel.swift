@@ -8,7 +8,8 @@
 import Foundation
 
 class TaskViewModel: ObservableObject {
-    @Published var tasks: [Task] = Task.randomTasks(20)
+    @Published var tasks: [Task] = []
+    @Published var tags: [String: String] = [:]
     
     @Published var taskListMode: TaskListMode = .list
     @Published var taskListPeriod: TaskListPeriod = .day

@@ -22,7 +22,8 @@ extension Date {
         case H = "H"
         case h_a = "h a"
         case MMMM = "MMMM"
-        
+        case dMMMMyyyy = "d MMMM yyyy"
+        case h_mma = "h:mm a"
     }
     
     var ordinalDate: String {

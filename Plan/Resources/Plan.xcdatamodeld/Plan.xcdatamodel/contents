@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="23E214" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Subtask" representedClassName="Subtask" syncable="YES" codeGenerationType="class">
+        <attribute name="completed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="note" attributeType="String" defaultValueString=""/>
+        <attribute name="title" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <relationship name="task" maxCount="1" deletionRule="Nullify" destinationEntity="Task" inverseName="subtask" inverseEntity="Task"/>
+    </entity>
+    <entity name="Task" representedClassName="Task" syncable="YES">
+        <attribute name="assignees" attributeType="Transformable" customClassName="[String]"/>
+        <attribute name="color" attributeType="String" defaultValueString="&quot;0.573#0.573#0.573#1.0&quot;"/>
+        <attribute name="completed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="completedOn" attributeType="Transformable" customClassName="[Date]"/>
+        <attribute name="completionAmount" attributeType="Integer 64" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="createdBy" optional="YES" attributeType="String"/>
+        <attribute name="createdOn" attributeType="Date" defaultDateTimeInterval="729262260" usesScalarValueType="NO"/>
+        <attribute name="date" attributeType="Date" defaultDateTimeInterval="729262260" usesScalarValueType="NO"/>
+        <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="endTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="goalAmount" attributeType="Integer 64" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="goalPeriod" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="goalSubunit" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="note" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="priority" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="reminderDelay" attributeType="Integer 64" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="reminderTime" attributeType="Date" defaultDateTimeInterval="729262320" usesScalarValueType="NO"/>
+        <attribute name="reminderWeekdays" attributeType="Transformable" customClassName="[Int64]"/>
+        <attribute name="repetitionAmount" attributeType="Integer 64" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="repetitionPeriod" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="repetitionPeriodAmount" attributeType="Integer 64" defaultValueString="1" usesScalarValueType="YES"/>
+        <attribute name="repetitionRepeatFrom" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="repetitionRepeatTime" attributeType="Date" defaultDateTimeInterval="734875380" usesScalarValueType="NO"/>
+        <attribute name="repetitionWeekdays" attributeType="Transformable" customClassName="[Int64]"/>
+        <attribute name="startDate" attributeType="Date" defaultDateTimeInterval="729262320" usesScalarValueType="NO"/>
+        <attribute name="startTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="tags" attributeType="Transformable" customClassName="[String]"/>
+        <attribute name="title" attributeType="String" defaultValueString="&quot;&quot;"/>
+        <attribute name="type" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="subtask" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Subtask" inverseName="task" inverseEntity="Subtask"/>
+    </entity>
+</model>

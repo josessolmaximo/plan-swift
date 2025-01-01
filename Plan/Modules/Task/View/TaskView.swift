@@ -9,7 +9,9 @@ import SwiftUI
 import OrderedCollections
 
 struct TaskView: View {
-    @StateObject var taskVM = TaskViewModel()
+    @Environment(\.managedObjectContext) var context
+    
+    @EnvironmentObject var taskVM: TaskViewModel
     
     @State var selectedWeek = Date().startOfWeek.startOfDay
     
@@ -17,76 +19,17 @@ struct TaskView: View {
     @State var dayDates: [Date] = [Date().startOfWeek.startOfDay]
     
     var orderedTasks: OrderedDictionary<Date, [Task]> {
-        let sortedTasks = taskVM.tasks.sorted(by: { $0.startDate > $1.startDate })
+        let sortedTasks = taskVM.tasks.sorted(by: { $0.startDate ?? Date() > $1.startDate ?? Date() })
         
         var dict: OrderedDictionary<Date, [Task]> = [:]
         
         sortedTasks.forEach { task in
-            dict[task.startDate.startOfDay, default: []].append(task)
+            dict[task.startDate?.startOfDay ?? Date(), default: []].append(task)
         }
         
         return dict
     }
     
-    var taskSlots: OrderedDictionary<String, (width: Double, offset: Double)> {
-        let tasks = orderedTasks.elements
-            .filter({
-                $0.key == Date().startOfDay
-            })
-            .map({ $0.value })
-            .reduce([], +)
-            .filter({ $0.startTime != nil && $0.endTime != nil })
-            .sorted(by: {
-                if let start1 = $0.startTime, let start2 = $1.startTime {
-                    if let end1 = $0.endTime, let end2 = $1.endTime {
-                        let duration1 = end1.distance(to: start1)
-                        let duration2 = end2.distance(to: start2)
-                        
-                        return duration1 < duration2 && start1 < start2
-                    }
-                    
-                    return start1 < start2
-                } else {
-                    return false
-                }
-            })
-            
-        
-        var slots: OrderedDictionary<String, (width: Double, offset: Double)> = [:]
-        
-        var overlaps: OrderedDictionary<String, [Task]> = [:]
-        
-        tasks.forEach { task in
-            let index = tasks.firstIndex(of: task)
-            
-            overlaps[task.id.uuidString] = findOverlappingTasks(task.startTime!...task.endTime!, tasks: tasks)
-        }
-        
-        tasks.forEach { task in
-            let index = overlaps[task.id.uuidString]?.firstIndex(of: task) ?? 0
-            
-            let total = (overlaps.values.filter({ $0.contains(task) }).map({ $0.count }).max() ?? 0)
-            
-            slots[task.id.uuidString] = (1.0/Double(total), 1.0/Double(total) * Double(index))
-        }
-        return slots
-    }
-    
-    func findOverlappingTasks(_ range: ClosedRange<Date>, result: [Task] = [], tasks: [Task]) -> [Task] {
-        var tasks = tasks.filter({ $0.startTime != nil })
-        var result: [Task] = []
-        
-        if let task = tasks.first(where: { 
-            ($0.startTime!...$0.endTime!).overlaps(range)
-        }) {
-            tasks.removeAll(where: { $0 == task })
-            result.append(task)
-            
-            return result + findOverlappingTasks(range, result: result, tasks: tasks)
-        } else {
-            return []
-        }
-    }
     
     var body: some View {
         VStack {
@@ -178,11 +121,12 @@ struct TaskView: View {
                             .frame(height: 50)
                             .frame(maxWidth: .infinity)
                             .padding(.bottom, 2)
-                            .background(
+                            .overlay(
                                 ZStack {
                                     if taskVM.selectedDate == date {
                                         RoundedRectangle(cornerRadius: 8)
-                                            .foregroundColor(Color(uiColor: .systemGray5))
+                                            .stroke(Color(uiColor: .systemGray4), lineWidth: 1)
+//                                            .foregroundColor(Color.black.opacity(0.025))
                                     }
                                 }
                             )
@@ -261,7 +205,7 @@ struct TaskView: View {
                                             $1.key != Date().startOfDay
                                         }), id: \.key) { key, value in
                                             ForEach(value
-                                                .sorted(by: { $0.priority.rawValue > $1.priority.rawValue })
+                                                .sorted(by: { $0.priorityEnum.rawValue > $1.priorityEnum.rawValue })
                                                 .sorted(by: { !$0.completed && $1.completed })) { task in
                                                     TaskRowView(task: task) {
                                                         if let index = taskVM.tasks.firstIndex(where: { $0.id == task.id }) {
@@ -281,260 +225,15 @@ struct TaskView: View {
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
         }
-    }
-}
-
-extension TaskView {
-    var timelineView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-//            ScrollView {
-//                VStack {
-//                    HStack(alignment: .top, spacing: 4) {
-//                        switch taskVM.taskListPeriod {
-//                        case .day:
-//                            VStack(alignment: .leading, spacing: 4) {
-//                                ForEach(orderedTasks[taskVM.selectedDate]?
-//                                    .filter({ $0.startTime == nil })
-//                                    .sorted(by: { $0.priority.rawValue > $1.priority.rawValue })
-//                                    .sorted(by: { !$0.completed && $1.completed })
-//                                    .sorted(by: {
-//                                        if let start1 = $0.startTime, let start2 = $1.startTime {
-//                                            return start1 < start2
-//                                        } else {
-//                                            return false
-//                                        }
-//                                    }) ?? []) { task in
-//                                        timelineTopTaskView(task)
-//                                    }
-//                                    .frame(alignment: .leading)
-//                            }
-//                            .frame(maxHeight: 100)
-//                        case .week:
-//                            ForEach(Date.array(from: taskVM.selectedDate.startOfWeek.startOfDay, to: taskVM.endDate.endOfWeek.startOfDay), id: \.self) { date in
-//                                VStack(alignment: .leading, spacing: 4) {
-//                                    ForEach(orderedTasks[date]?
-//                                        .filter({ $0.startTime == nil })
-//                                        .sorted(by: { $0.priority.rawValue > $1.priority.rawValue })
-//                                        .sorted(by: { !$0.completed && $1.completed })
-//                                        .sorted(by: {
-//                                            if let start1 = $0.startTime, let start2 = $1.startTime {
-//                                                return start1 < start2
-//                                            } else {
-//                                                return false
-//                                            }
-//                                        }) ?? []) { task in
-//                                            timelineTopTaskView(task)
-//                                        }
-//                                        .frame(alignment: .leading)
-//                                    
-//                                    Spacer()
-//                                        .frame(maxWidth: .infinity)
-//                                }
-//                                .frame(maxHeight: 100)
-//                            }
-//                        case .month:
-//                            ForEach(orderedTasks.elements
-//                                .filter({ $0.key == taskVM.selectedDate }), id: \.key) { key, value in
-//                                    VStack(alignment: .leading, spacing: 4) {
-//                                        ForEach(value
-//                                            .filter({ $0.startTime == nil })
-//                                            .sorted(by: { $0.priority.rawValue > $1.priority.rawValue })
-//                                            .sorted(by: { !$0.completed && $1.completed })
-//                                            .sorted(by: {
-//                                                if let start1 = $0.startTime, let start2 = $1.startTime {
-//                                                    return start1 < start2
-//                                                } else {
-//                                                    return false
-//                                                }
-//                                            })) { task in
-//                                                timelineTopTaskView(task)
-//                                            }
-//                                            .frame(alignment: .leading)
-//                                    }
-//                                    .frame(maxHeight: 100)
-//                                }
-//                        }
-//                    }
-//                }
-//            }
-//                .padding(.horizontal)
-//                .padding(.leading, 48)
-//                .frame(maxHeight: 100)
-            
-            ScrollView {
-                HStack(alignment: .top) {
-                    VStack(spacing: 0) {
-                        ForEach(0...24, id: \.self) { hour in
-                            let date = Calendar.current.date(from: .init(hour: hour))!
-                            VStack {
-                                Text(date.formatAs(.h_a))
-                                    .font(.system(size: 13, weight: .medium))
-                                
-                                Spacer()
-                            }
-                            .frame(height: 75)
-                        }
-                    }
-                    .frame(width: 40)
-                    
-                    GeometryReader { proxy in
-                        ZStack(alignment: .top) {
-                            VStack(spacing: 0) {
-                                ForEach(0...24, id: \.self) { hour in
-                                    VStack {
-                                        Rectangle()
-                                            .frame(height: 1)
-                                            .foregroundColor(Color(uiColor: .systemGray4))
-                                        
-                                        Spacer()
-                                    }
-                                    .frame(height: 75)
-                                }
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 0) {
-                                HStack(spacing: 0) {
-                                    switch taskVM.taskListPeriod {
-                                    case .day:
-                                        ZStack(alignment: .top) {
-                                            let data = orderedTasks[taskVM.selectedDate]?
-                                                .sorted(by: { $0.priority.rawValue > $1.priority.rawValue })
-                                                .sorted(by: { !$0.completed && $1.completed })
-                                                .sorted(by: {
-                                                    if let start1 = $0.startTime, let start2 = $1.startTime {
-                                                        return start1 < start2
-                                                    } else {
-                                                        return false
-                                                    }
-                                                }) ?? []
-                                            
-                                            ForEach(data) { task in
-                                                timelineTaskView(task, allTasks: data, proxy: proxy)
-                                            }
-                                            .frame(alignment: .leading)
-                                        }
-                                    case .week:
-                                        ZStack(alignment: .top) {
-                                            ForEach(Date.array(from: taskVM.selectedDate.startOfWeek.startOfDay, to: taskVM.endDate.endOfWeek.startOfDay), id: \.self) { date in
-                                                
-                                                let data = orderedTasks[date]?
-                                                    .sorted(by: { $0.priority.rawValue > $1.priority.rawValue })
-                                                    .sorted(by: { !$0.completed && $1.completed })
-                                                    .sorted(by: {
-                                                        if let start1 = $0.startTime, let start2 = $1.startTime {
-                                                            if let end1 = $0.endTime, let end2 = $1.endTime {
-                                                                let duration1 = end1.distance(to: start1)
-                                                                let duration2 = end2.distance(to: start2)
-                                                                
-                                                                return duration1 < duration2
-                                                            }
-                                                            
-                                                            return start1 < start2
-                                                        } else {
-                                                            return false
-                                                        }
-                                                    }) ?? []
-                                                
-                                                ForEach(data) { task in
-                                                    timelineTaskView(task, allTasks: data, proxy: proxy)
-                                                }
-                                                
-                                                Spacer()
-                                            }
-                                        }
-                                    case .month:
-                                        ForEach(orderedTasks.elements
-                                            .filter({ $0.key == taskVM.selectedDate }), id: \.key) { key, value in
-                                                ZStack(alignment: .top) {
-                                                    let data = value
-                                                        .sorted(by: { $0.priority.rawValue > $1.priority.rawValue })
-                                                        .sorted(by: { !$0.completed && $1.completed })
-                                                        .sorted(by: {
-                                                            if let start1 = $0.startTime, let start2 = $1.startTime {
-                                                                return start1 < start2
-                                                            } else {
-                                                                return false
-                                                            }
-                                                        })
-                                                    
-                                                    ForEach(data) { task in
-                                                            timelineTaskView(task, allTasks: data, proxy: proxy)
-                                                        }
-                                                        .frame(alignment: .leading)
-                                                }
-                                            }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                .padding(.horizontal)
-            }
+        .onAppear {
+            let task = Task(context: context)
+            task.title = "Wash dishes"
+            taskVM.tasks = [task]
         }
-    }
-    
-    @ViewBuilder
-    func timelineTaskView(_ task: Task, allTasks: [Task], proxy: GeometryProxy) -> some View {
-        if let startTime = task.startTime {
-            let startHour = Double(Calendar.current.component(.hour, from: startTime))
-            let startMinute = Double(Calendar.current.component(.minute, from: startTime))
-            
-            let endHour = task.endTime != nil ? Double(Calendar.current.component(.hour, from: task.endTime!)) : 0
-            let endMinute = task.endTime != nil ? Double(Calendar.current.component(.minute, from: task.endTime!)) : 0
-            
-            let startOffset: CGFloat = CGFloat(((startHour - 1) + startMinute / 60.0 ) / 24.0 * 24.0 * Double(75.0))
-            let endOffset: CGFloat = CGFloat(((endHour - 1) + endMinute / 60.0 ) / 24.0 * 24.0 * Double(75.0))
-            
-            var width: CGFloat {
-                return (taskSlots[task.id.uuidString]?.width ?? 1) * proxy.size.width
-            }
-            
-            var offset: CGFloat {
-                let taskOffset = taskSlots[task.id.uuidString]?.offset ?? 0
-                return -(proxy.size.width - width) / 2 + (taskOffset * proxy.size.width)
-            }
-            
-            HStack(alignment: .top, spacing: 8) {
-                Rectangle()
-                    .frame(width: 2)
-                    .foregroundColor(task.priority.color)
-                
-                Text(task.title)
-                    .strikethrough(task.completed, color: .gray)
-                    .foregroundStyle(task.completed ? .gray : .black)
-                    .font(.system(size: 17, weight: .medium))
-                    .padding(.vertical, 4)
-            }
-            .frame(width: width, height: max(48, endOffset - startOffset), alignment: .leading)
-            .background(task.priority.color.opacity(0.2))
-            .cornerRadius(4)
-            .offset(x: offset, y: startOffset)
-        }
-    }
-    
-    
-    @ViewBuilder
-    func timelineTopTaskView(_ task: Task) -> some View {
-        HStack(alignment: .top, spacing: 8) {
-            Rectangle()
-                .frame(width: 2)
-                .foregroundColor(task.priority.color)
-            
-            Text(task.title)
-                .strikethrough(task.completed, color: .gray)
-                .foregroundStyle(task.completed ? .gray : .black)
-                .font(.system(size: 17, weight: .medium))
-            //                    .lineLimit(1)
-                .padding(.vertical, 4)
-        }
-        .frame(height: 48, alignment: .leading)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(task.priority.color.opacity(0.2))
-        .cornerRadius(4)
     }
 }
 
 #Preview {
     TaskView()
+        .environmentObject(TaskViewModel())
 }
